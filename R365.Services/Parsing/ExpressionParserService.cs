@@ -30,9 +30,6 @@ namespace R365.Services.Parsing
 
             var componentStrings = value.Split(Delimiter, StringSplitOptions.None);
 
-            if (componentStrings.Length > 2)
-                throw new ArgumentException($"Invalid usage: Accepts at most 2 values separated by '{Delimiter}'.");
-
             var componentTasks = componentStrings
                 .Select(componentString => _numericalParser.ParseAsync(componentString, ct))
                 .ToArray();
