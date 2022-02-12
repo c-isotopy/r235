@@ -8,7 +8,7 @@ namespace R365.Services.Parsing
 {
     public class ExpressionParserService : IExpressionParserService
     {
-        public static readonly string Delimiter = ",";
+        public static readonly char[] Delimiters = new char[] { ',', '\n' };
 
         private readonly INumericalParserService _numericalParser;
 
@@ -28,7 +28,7 @@ namespace R365.Services.Parsing
                 return Task.FromResult(result);
             }
 
-            var componentStrings = value.Split(Delimiter, StringSplitOptions.None);
+            var componentStrings = value.Split(Delimiters, StringSplitOptions.None);
 
             var componentTasks = componentStrings
                 .Select(componentString => _numericalParser.ParseAsync(componentString, ct))

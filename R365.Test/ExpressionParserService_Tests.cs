@@ -122,7 +122,7 @@ namespace R365.Test
             mappings["some"] = random.Next();
             mappings["text"] = random.Next();
 
-            var text = "some" + ExpressionParserService.Delimiter + "text";
+            var text = "some" + ExpressionParserService.Delimiters[0] + "text";
             #endregion
 
             #region Setup
@@ -164,7 +164,7 @@ namespace R365.Test
                 mappings[next.ToString()] = next;
             }
 
-            var text = string.Join( ExpressionParserService.Delimiter , mappings.Keys);
+            var text = string.Join(ExpressionParserService.Delimiters[0], mappings.Keys);
             #endregion
 
             #region Setup
@@ -216,6 +216,37 @@ namespace R365.Test
             Assert.AreEqual(emptyValue, actualResult.Components.ElementAt(0));
             Assert.AreEqual(emptyValue, actualResult.Components.ElementAt(1));
             #endregion
+        }
+
+        [TestMethod]
+        public void ParseAsync_parse_all_delimiters()
+        {
+            foreach (var delimiter in ExpressionParserService.Delimiters)
+            {
+                #region Data
+                var random = new Random();
+
+                var number = random.Next();
+                var text = $"{number}{delimiter}{number}";
+                #endregion
+
+                #region Setup
+                var parserMock = new Mock<INumericalParserService>();
+                parserMock
+                    .Setup(inst => inst.ParseAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(number);
+                #endregion
+
+                #region Execution
+                var service = new ExpressionParserService(parserMock.Object);
+                var actualResult = service.ParseAsync(text, new CancellationToken()).GetAwaiter().GetResult();
+                #endregion
+
+                #region Assertions
+                parserMock.Verify(inst => inst.ParseAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+                Assert.AreEqual(2, actualResult.Components.Count());
+                #endregion
+            }
         }
     }
 }
